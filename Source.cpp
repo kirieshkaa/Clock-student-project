@@ -4,8 +4,8 @@
 #include<string>
 #include<vector>
 #include<ctime>
-#include<chrono>
-#include<thread>
+//#include<chrono>
+//#include<thread>
 
 
 std::vector<std::string> zero	{" 0000 ", "00  00", "00  00", "00  00", " 0000 "};
@@ -43,6 +43,7 @@ void clock_output(int hours, int minutes, int seconds) {
 int main() {
 	setlocale(LC_ALL, "Russian");
 
+	time_t deltaClock;
 	while (true) {
 	std::time_t clock = std::time(NULL);
 	std::tm* localTime = std::localtime(&clock);
@@ -50,8 +51,12 @@ int main() {
 	int mins = localTime->tm_min;
 	int seconds = localTime->tm_sec;
 	clock_output(hours, mins, seconds);
-	std::this_thread::sleep_for(std::chrono::seconds(1));
+	
+	deltaClock = std::time(NULL);
+	while (deltaClock - clock < 1) {
+		deltaClock = std::time(NULL);
+	}
+	//std::this_thread::sleep_for(std::chrono::seconds(1));
 	system("cls");
 	}
-	//аляля улюлю ихихи эхехе
 }
