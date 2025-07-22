@@ -6,9 +6,8 @@
 #include <ctime>
 #include <fcntl.h>
 #include <io.h>
-
-//#include<chrono>
-//#include<thread>
+#include<chrono>
+#include<thread>
 
 
 std::vector<std::wstring> zero	{ L" 0000 ", L"00  00", L"00  00", L"00  00", L" 0000 "};
@@ -51,9 +50,9 @@ L"⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠀⢹⣆⣷⣴⣾⡇⠀⠀⠀⢸⡇⢀⣼⠼
 L"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠿⠛⠃⠀⠀⠀⠀⠀⠀⠱⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀" 
 };
 
-void picture_output(int size) {
+void picture_output(int size, std::wstring space) {
 	for (int i = 0; i < size; i++) {
-		std::wcout << picture[i] << '\n';
+		std::wcout << space << picture[i] << '\n';
 	}
 }
 
@@ -71,6 +70,16 @@ void clock_output(int hours, int minutes, int seconds) {
 			<< number[m1][i] << "   " << number[m2][i] << "   " << colon[i] << "   "
 			<< number[s1][i] << "   " << number[s2][i] << "\n";
 	}
+	std::wcout << "\n\n\n";
+}
+
+std::wstring spacer() {
+	int space_size = (zero[0].size() * 4 + colon[0].size() + 21) / 2 - picture[0].size() / 2;
+	std::wstring space{};
+	for (int i = 0; i < space_size; i++) {
+		space += ' ';
+	}
+	return space;
 }
 
 int main() {
@@ -78,6 +87,7 @@ int main() {
 	//setlocale(LC_ALL, "Russian");
 	//system("chcp 65001"); 
 	_setmode(_fileno(stdout), _O_U16TEXT);
+	std::wstring space = spacer();
 	
 	time_t deltaClock;
 	while (true) {
@@ -87,12 +97,10 @@ int main() {
 		int mins = localTime->tm_min;
 		int seconds = localTime->tm_sec;
 		clock_output(hours, mins, seconds);
-		picture_output(picture.size());
+		picture_output(picture.size(), space);
 		deltaClock = std::time(NULL);
-		while (deltaClock - clock < 1) {
-			deltaClock = std::time(NULL);
-		}
-		//std::this_thread::sleep_for(std::chrono::seconds(1));
+
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 		system("cls");
 	}
 }
