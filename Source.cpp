@@ -6,51 +6,12 @@
 #include <ctime>
 #include <fcntl.h>
 #include <io.h>
-#include<chrono>
-#include<thread>
+#include <chrono>
+#include <thread>
 
+#include "images.h"
 
-std::vector<std::wstring> zero	{ L" 0000 ", L"00  00", L"00  00", L"00  00", L" 0000 "};
-std::vector<std::wstring> one	{ L"1111  ", L"  11  ", L"  11  ", L"  11  ", L"111111"};
-std::vector<std::wstring> two	{ L" 2222 ", L"22  22", L"   22 ", L"  22  ", L"222222"};
-std::vector<std::wstring> three	{ L" 3333 ", L"33  33", L"   333", L"33  33", L" 3333 "};
-std::vector<std::wstring> four	{ L"44  44", L"44  44", L"444444", L"    44", L"    44"};
-std::vector<std::wstring> five	{ L"555555", L"55    ", L"55555 ", L"    55", L"55555 "};
-std::vector<std::wstring> six	{ L" 6666 ", L"66    ", L"66666 ", L"66  66", L" 6666 "};
-std::vector<std::wstring> seven	{ L"777777", L"   77 ", L"  77  ", L" 77   ", L"77    "};
-std::vector<std::wstring> eight	{ L" 8888 ", L"88  88", L" 8888 ", L"88  88", L" 8888 "};
-std::vector<std::wstring> nine	{ L" 9999 ", L"99  99", L" 99999", L"    99", L" 9999 "};
-
-std::vector<std::vector<std::wstring>> number{ zero, one, two, three, four, five, six, seven, eight, nine };
-
-std::vector<std::wstring> colon{ L"   ", L" . ", L"   ", L" . ", L"   " };
-
-std::vector<std::wstring> picture{
-L" ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣾⠉⢳⣰⠋⠙⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
-L"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢧⡀⠁⢀⡜⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
-L"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠷⠋⠀⠀⠀⠀⠀⠀⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
-L"⠀⠀⠀⠀⠀⣠⣴⣶⢦⣦⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⡾⠟⠛⠛⠛⠿⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀",
-L"⠀⠀⠀⠀⣼⠋⠀⠀⠀⠈⠻⣷⣄⠀⠀⠀⠀⠀⢀⢸⡏⠀⠀⢀⣀⣀⠀⠘⣷⠀⠀⠀⠀⠀⠀⠀⠀",
-L"⠀⠀⠀⢸⡏⠀⠀⣠⣴⣦⡀⠸⣿⡷⠶⠾⠻⠛⠛⠃⠀⠀⡿⣿⣿⣿⠀⠀⣿⠀⠀⠀⠀⠀⠀⠀⠀",
-L"⠀⠀⠀⣼⡇⠀⢸⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠿⠿⠛⠀⠀⠙⢷⡀⠀⠀⠀⠀⠀ ",
-L"⠀⠀⠀⢽⡇⠀⠀⠉⠛⠛⠉⠀⠀⠀⠀⠰⣤⣤⠞⠀⠀⠀⠀⢀⢤⢤⠤⣄⠀⠀⢸⡇⠀⠀⠀⠀⠀",
-L"⠀⠀⠀⢸⡇⠀⠀⢀⡴⢶⠲⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠳⢵⣁⡧⠃⠀⠀⣿⠃⠀⠀⠀⠀",
-L"⠀⠀⠀⢸⣿⠀⠀⢯⣊⡧⠽⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⡇⠀⠀⠀⠀",
-L"⠀⠀⠀⠐⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⡏⠀⠀⠀⠀",
-L"⠀⢀⣠⣤⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠉⠉⠀⠙⠶⣄⠀⠀⠀",
-L"⠀⣾⡏⠀⠸⡄⠀⠀⠀⠀⠀⠀⣰⠋⠁⠀⠀⠀⠀⠀⠀⠉⠳⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⡄ ",
-L"⠰⣿⠀⠀⠀⠁⠀⠀⠀⠀⠀⢰⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠿⡄⠀⠀⠀⠀⠀⠀⠀⠀ ⣿⠀",
-L"⠘⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⡇⠀⠀⠀⠀⠀⠀⠀ ⠀⢸ ",
-L"⠀⢻⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠊⠆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡞⠁⠀⢠⠀⠀⠀⠀ ⠀⠀⡟⠀",
-L"⠀⠈⣿⡆⠀⠀⠀⠀⠘⢆⠀⠀⠀⢸⣆⠀⠀⠀⠀⠀⠀⠀⢀⣾⠀⠀⠀⣿⠀⠀⠀ ⠀⠀⡼⠀⠀",
-L"⠀⠀⠈⠻⣦⣀⠀⢀⠀⠈⣇⡄⠀⠀⠿⡆⠀⠀⠀⠀⠀⠀⣸⡇⠀⠀⠀⣿⠀⠀ ⣶⡾⠟⠀⠀⠀",
-L"⠀⠀⠀⠀⠈⢛⣻⡿⠀⠀⠈⣷⡀⠀⠀⢻⡦⠤⠤⠤⠤⠄⡇⠀⠀⠀⢸⡇  ⣾⣅⠀⠀⠀⠀⠀",
-L"⠀⠀⠀⠀⠀⠸⣯⣦⣤⣤⣴⣼⣇⠀⠀⠀⣷⡀⠀⠀⠀⣸⡏⠀⢠⠀⢸⣷⣤⣤⣾⠏⠀⠀⠀⠀⠀",
-L"⠀⠀⠀⠀⠀⠀⠈⠉⠉⠉⠉⠀⢹⣆⣷⣴⣾⡇⠀⠀⠀⢸⡇⢀⣼⠼⠾⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
-L"⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠿⠛⠃⠀⠀⠀⠀⠀⠀⠱⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀" 
-};
-
-void picture_output(int size, std::wstring space) {
+void picture_output(int size, std::wstring space, const std::vector<std::wstring> &picture) {
 	for (int i = 0; i < size; i++) {
 		std::wcout << space << picture[i] << '\n';
 	}
@@ -73,8 +34,8 @@ void clock_output(int hours, int minutes, int seconds) {
 	std::wcout << "\n\n\n";
 }
 
-std::wstring spacer() {
-	int space_size = (zero[0].size() * 4 + colon[0].size() + 21) / 2 - picture[0].size() / 2;
+std::wstring spacer(const std::vector<std::wstring> &picture) {
+	int space_size = (zero[0].size() * 6 + colon[0].size() + 21) / 2 - picture[0].size() / 2;
 	std::wstring space{};
 	for (int i = 0; i < space_size; i++) {
 		space += ' ';
@@ -83,11 +44,11 @@ std::wstring spacer() {
 }
 
 int main() {
-	//std::locale::global(std::locale(""));
-	//setlocale(LC_ALL, "Russian");
-	//system("chcp 65001"); 
-	_setmode(_fileno(stdout), _O_U16TEXT);
-	std::wstring space = spacer();
+	srand(time(0));
+	_setmode(_fileno(stdout), _O_U16TEXT); //для вывода unicode символов
+
+	std::vector<std::wstring> picture = pictureCollection[rand() % 4];
+	std::wstring space = spacer(picture);
 	
 	time_t deltaClock;
 	while (true) {
@@ -97,7 +58,7 @@ int main() {
 		int mins = localTime->tm_min;
 		int seconds = localTime->tm_sec;
 		clock_output(hours, mins, seconds);
-		picture_output(picture.size(), space);
+		picture_output(picture.size(), space, picture);
 		deltaClock = std::time(NULL);
 
 		std::this_thread::sleep_for(std::chrono::seconds(1));
