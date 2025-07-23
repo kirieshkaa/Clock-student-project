@@ -1,32 +1,25 @@
-#define _CRT_SECURE_NO_WARNINGS
+﻿#define _CRT_SECURE_NO_WARNINGS
 
-#include<iostream>
-#include<string>
-#include<vector>
-#include<ctime>
-#include<chrono>
-#include<thread>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <ctime>
+#include <fcntl.h>
+#include <io.h>
+#include <chrono>
+#include <thread>
 
+#include "images.h"
 
-std::vector<std::string> zero	{" 0000 ", "00  00", "00  00", "00  00", " 0000 "};
-std::vector<std::string> one	{"1111  ", "  11  ", "  11  ", "  11  ", "111111"};
-std::vector<std::string> two	{" 2222 ", "22  22", "   22 ", "  22  ", "222222"};
-std::vector<std::string> three	{" 3333 ", "33  33", "   333", "33  33", " 3333 "};
-std::vector<std::string> four	{"44  44", "44  44", "444444", "    44", "    44"};
-std::vector<std::string> five	{"555555", "55    ", "55555 ", "    55", "55555 "};
-std::vector<std::string> six	{" 6666 ", "66    ", "66666 ", "66  66", " 6666 "};
-std::vector<std::string> seven	{"777777", "   77 ", "  77  ", " 77   ", "77    "};
-std::vector<std::string> eight	{" 8888 ", "88  88", " 8888 ", "88  88", " 8888 "};
-std::vector<std::string> nine	{" 9999 ", "99  99", " 99999", "    99", " 9999 "};
-
-std::vector<std::vector<std::string>> number{ zero, one, two, three, four, five, six, seven, eight, nine };
-
-std::vector<std::string> colon{ "   ", " . ", "   ", " . ", "   " };
-
+void picture_output(int size, std::wstring space, const std::vector<std::wstring> &picture) {
+	for (int i = 0; i < size; i++) {
+		std::wcout << space << picture[i] << '\n';
+	}
+}
 
 void number_output(int num) {
 	for (int i = 0; i < 5; i++) {
-		std::cout << number[num][i] << '\n';
+		std::wcout << number[num][i] << '\n';
 	}
 }
 
@@ -34,23 +27,41 @@ void clock_output(int hours, int minutes, int seconds) {
 	int h1 = hours / 10, h2 = hours % 10, m1 = minutes / 10, m2 = minutes % 10,
 		s1 = seconds / 10, s2 = seconds % 10;
 	for (int i = 0; i < 5; i++) {
-		std::cout << number[h1][i] << "   " << number[h2][i] << "   " << colon[i] << "   "
+		std::wcout << number[h1][i] << "   " << number[h2][i] << "   " << colon[i] << "   "
 			<< number[m1][i] << "   " << number[m2][i] << "   " << colon[i] << "   "
 			<< number[s1][i] << "   " << number[s2][i] << "\n";
 	}
+	std::wcout << "\n\n\n";
+}
+
+std::wstring spacer(const std::vector<std::wstring> &picture) {
+	int space_size = (zero[0].size() * 6 + colon[0].size() + 21) / 2 - picture[0].size() / 2;
+	std::wstring space{};
+	for (int i = 0; i < space_size; i++) {
+		space += ' ';
+	}
+	return space;
 }
 
 int main() {
-	setlocale(LC_ALL, "Russian");
+	srand(time(0));
+	_setmode(_fileno(stdout), _O_U16TEXT); //для вывода unicode символов
 
+	std::vector<std::wstring> picture = pictureCollection[rand() % 4];
+	std::wstring space = spacer(picture);
+	
+	time_t deltaClock;
 	while (true) {
-	std::time_t clock = std::time(NULL);
-	std::tm* localTime = std::localtime(&clock);
-	int hours = localTime->tm_hour;
-	int mins = localTime->tm_min;
-	int seconds = localTime->tm_sec;
-	clock_output(hours, mins, seconds);
-	std::this_thread::sleep_for(std::chrono::seconds(1));
-	system("cls");
+		std::time_t clock = std::time(NULL);
+		std::tm* localTime = std::localtime(&clock);
+		int hours = localTime->tm_hour;
+		int mins = localTime->tm_min;
+		int seconds = localTime->tm_sec;
+		clock_output(hours, mins, seconds);
+		picture_output(picture.size(), space, picture);
+		deltaClock = std::time(NULL);
+
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+		system("cls");
 	}
 }
